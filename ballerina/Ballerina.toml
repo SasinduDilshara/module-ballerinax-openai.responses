@@ -1,13 +1,13 @@
 [package]
-distribution = "2201.9.3"
+distribution = "2201.13.0"
 org = "ballerinax"
-name = "openai.chat"
+name = "openai.responses"
 version = "5.0.0"
 license = ["Apache-2.0"]
 authors = ["Ballerina"]
 keywords = ["AI/Chat", "OpenAI", "Cost/Paid", "GPT-4", "ChatGPT", "Vendor/OpenAI"]
 icon = "icon.png"
-repository = "https://github.com/ballerina-platform/module-ballerinax-openai.chat"
+repository = "https://github.com/ballerina-platform/module-ballerinax-openai.responses"
 
 [build-options]
 observabilityIncluded = true
