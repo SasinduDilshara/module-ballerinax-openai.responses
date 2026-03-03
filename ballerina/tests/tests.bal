@@ -1,0 +1,81 @@
+// Copyright (c) 2025, WSO2 LLC. (http://www.wso2.com).
+//
+// WSO2 LLC. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import ballerina/os;
+import ballerina/test;
+
+configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
+configurable string token = isLiveServer ? os:getEnv("OPENAI_TOKEN") : "test";
+final string mockServiceUrl = "http://localhost:9090";
+final Client openAIResponses = check initClient();
+
+function initClient() returns Client|error {
+    if isLiveServer {
+        return new ({auth: {token}});
+    }
+    return new ({auth: {token}}, mockServiceUrl);
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+isolated function testCreateResponse() returns error? {
+    CreateResponse request = {
+        model: "gpt-4o-mini",
+        input: "This is a test message"
+    };
+    Response response = check openAIResponses->/responses.post(request);
+    test:assertTrue(response.id.length() > 0, msg = "Expected a non-empty response ID");
+    test:assertEquals(response.'object, "response", msg = "Expected object type to be 'response'");
+    test:assertTrue(response.output.length() > 0, msg = "Expected at least one output item");
+    test:assertEquals(response.status, "completed", msg = "Expected status to be 'completed'");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+isolated function testCreateResponseWithInstructions() returns error? {
+    CreateResponse request = {
+        model: "gpt-4o-mini",
+        instructions: "You are a helpful assistant. Keep responses brief.",
+        input: "Say hello in one word."
+    };
+    Response response = check openAIResponses->/responses.post(request);
+    test:assertTrue(response.output.length() > 0, msg = "Expected at least one output item");
+    OutputItem firstItem = response.output[0];
+    test:assertTrue(firstItem is OutputMessage, msg = "Expected first output item to be an OutputMessage");
+}
+
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
+isolated function testCreateResponseOutputContent() returns error? {
+    CreateResponse request = {
+        model: "gpt-4o-mini",
+        input: "This is a test message"
+    };
+    Response response = check openAIResponses->/responses.post(request);
+    test:assertTrue(response.output.length() > 0, msg = "Expected at least one output item");
+    OutputItem firstItem = response.output[0];
+    if firstItem is OutputMessage {
+        test:assertTrue(firstItem.content.length() > 0, msg = "Expected content in the output message");
+        OutputMessageContent firstContent = firstItem.content[0];
+        test:assertTrue(firstContent is OutputTextContent, msg = "Expected output text content");
+        if firstContent is OutputTextContent {
+            test:assertTrue(firstContent.text.length() > 0, msg = "Expected non-empty text in the response");
+        }
+    }
+}

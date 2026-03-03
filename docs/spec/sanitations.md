@@ -1,0 +1,64 @@
+_Authors_: @ballerina-platform \
+_Created_: 2024/08/05 \
+_Updated_: 2026/03/03 \
+_Edition_: Swan Lake
+
+# Sanitation for OpenAPI specification
+
+This document records the sanitation done on top of the official OpenAPI specification from OpenAI.
+The OpenAPI specification is obtained from the [OpenAPI specification for the OpenAI API](https://app.stainless.com/api/spec/documented/openai/openapi.documented.yml).
+These changes are done in order to improve the overall usability, and as workarounds for some known language limitations.
+
+1. **Converted nullable type arrays to `nullable: true`**:
+
+   - **Changed Schemas**: Multiple schemas throughout the specification
+   - **Original**: `type: ["string", "null"]` (OpenAPI 3.1.x style)
+   - **Updated**: `type: string` with `nullable: true`
+   - **Reason**: Type arrays are not supported in OpenAPI 3.0.0. The `nullable: true` property is the 3.0.0 equivalent for expressing nullable types.
+
+2. **Removed `default: null` properties**:
+
+   - **Changed Schemas**: Multiple schemas including request and response types
+   - **Original**: `default: null`
+   - **Updated**: Removed the `default` parameter
+   - **Reason**: Temporary workaround until the Ballerina OpenAPI tool supports OpenAPI Specification version v3.1.x.
+
+3. **Converted `const` to `enum`**:
+
+   - **Changed Schemas**: Multiple schemas with constant values
+   - **Original**: `const: "value"`
+   - **Updated**: `enum: ["value"]`
+   - **Reason**: The `const` keyword is not supported in OpenAPI 3.0.0. Using `enum` with a single value achieves the same effect.
+
+4. **Converted `anyOf`/`oneOf` with null types**:
+
+   - **Changed Schemas**: Multiple schemas using `anyOf`/`oneOf` with `{"type": "null"}`
+   - **Original**: `anyOf: [{"type": "string"}, {"type": "null"}]`
+   - **Updated**: `type: string` with `nullable: true`
+   - **Reason**: The `anyOf`/`oneOf` with `{"type": "null"}` pattern for expressing nullable types is not supported in OpenAPI 3.0.0. The `nullable: true` property is used instead.
+
+5. **Removed `webhooks` section**:
+
+   - **Reason**: The `webhooks` key is not supported in OpenAPI 3.0.0.
+
+6. **Removed `jsonSchemaDialect`**:
+
+   - **Reason**: The `jsonSchemaDialect` key is not supported in OpenAPI 3.0.0.
+
+7. **Added `nullable: true` to `top_logprobs` in `CreateModelResponseProperties`**:
+
+   - **Changed Schemas**: `CreateModelResponseProperties`
+   - **Updated**:
+      - `top_logprobs:`
+         `// ... other fields omitted for brevity`
+         `nullable: true`
+   - **Reason**: The `top_logprobs` field is optional and can be absent or explicitly set to null. Marking it as `nullable: true` accurately reflects the field's data model, allowing it to represent either an integer value or the absence of a value.
+
+## OpenAPI cli command
+
+The following command was used to generate the Ballerina client from the OpenAPI specification. The command should be executed from the repository root directory.
+
+```bash
+bal openapi -i docs/spec/openapi.yaml --mode client --license docs/license.txt -o ballerina
+```
+Note: The license year is hardcoded to 2024, change if necessary.
