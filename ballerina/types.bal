@@ -729,7 +729,7 @@ public type InputImageContent record {
     string? image_url?;
     # The ID of the file to be sent to the model.
     string? file_id?;
-    ImageDetail detail;
+    ImageDetail detail?;
 };
 
 public type ServiceTier "auto"|"default"|"flex"|"scale"|"priority"?;

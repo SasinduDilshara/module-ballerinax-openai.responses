@@ -54,6 +54,13 @@ These changes are done in order to improve the overall usability, and as workaro
          `nullable: true`
    - **Reason**: The `top_logprobs` field is optional and can be absent or explicitly set to null. Marking it as `nullable: true` accurately reflects the field's data model, allowing it to represent either an integer value or the absence of a value.
 
+8. **Made `detail` field optional in `InputImageContent`**:
+
+   - **Changed Schema**: `InputImageContent`
+   - **Original**: `detail` listed in `required` array
+   - **Updated**: Removed `detail` from the `required` array
+   - **Reason**: The `detail` field defaults to `auto` and should not be mandatory. Making it optional improves usability by allowing users to omit it when the default behavior is acceptable.
+
 ## OpenAPI cli command
 
 The following command was used to generate the Ballerina client from the OpenAPI specification. The command should be executed from the repository root directory.
