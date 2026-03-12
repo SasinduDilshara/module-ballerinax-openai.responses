@@ -2,7 +2,7 @@
 
 [![Build](https://github.com/ballerina-platform/module-ballerinax-openai.responses/actions/workflows/ci.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-openai.responses/actions/workflows/ci.yml)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerinax-openai.responses.svg)](https://github.com/ballerina-platform/module-ballerinax-openai.responses/commits/main)
-[![GitHub Issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-library/module/openai.responses.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-library/labels/module%openai.responses)
+[![GitHub Issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-library/module/openai.responses.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-library/labels/module%2Fopenai.responses)
 
 ## Overview
 
@@ -12,7 +12,7 @@ The `ballerinax/openai.responses` package offers functionality to connect and in
 
 ## Setup guide
 
-To use the OpenAI Connector, you must have access to the OpenAI API through a [OpenAI Platform account](https://platform.openai.com) and a project under it. If you do not have a OpenAI Platform account, you can sign up for one [here](https://platform.openai.com/signup).
+To use the OpenAI Connector, you must have access to the OpenAI API through an [OpenAI Platform account](https://platform.openai.com) and a project under it. If you do not have a OpenAI Platform account, you can sign up for one [here](https://platform.openai.com/signup).
 
 #### Create an OpenAI API Key
 
