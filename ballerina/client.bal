@@ -25,9 +25,9 @@ public isolated client class Client {
     final http:Client clientEp;
     # Gets invoked to initialize the `connector`.
     #
-    # + config - The configurations to be used when initializing the `connector`
-    # + serviceUrl - URL of the target service
-    # + return - An error if connector initialization failed
+    # + config - The configurations to be used when initializing the `connector` 
+    # + serviceUrl - URL of the target service 
+    # + return - An error if connector initialization failed 
     public isolated function init(ConnectionConfig config, string serviceUrl = "https://api.openai.com/v1") returns error? {
         http:ClientConfiguration httpClientConfig = {auth: config.auth, httpVersion: config.httpVersion, http1Settings: config.http1Settings, http2Settings: config.http2Settings, timeout: config.timeout, forwarded: config.forwarded, followRedirects: config.followRedirects, poolConfig: config.poolConfig, cache: config.cache, compression: config.compression, circuitBreaker: config.circuitBreaker, retryConfig: config.retryConfig, cookieConfig: config.cookieConfig, responseLimits: config.responseLimits, secureSocket: config.secureSocket, proxy: config.proxy, socketConfig: config.socketConfig, validation: config.validation, laxDataBinding: config.laxDataBinding};
         self.clientEp = check new (serviceUrl, httpClientConfig);
@@ -41,13 +41,62 @@ public isolated client class Client {
     # or [file search](/docs/guides/tools-file-search) to use your own data
     # as input for the model's response.
     #
-    # + headers - Headers to be sent with the request
-    # + return - OK
+    # + headers - Headers to be sent with the request 
+    # + return - OK 
     resource isolated function post responses(CreateResponse payload, map<string|string[]> headers = {}) returns Response|error {
         string resourcePath = string `/responses`;
         http:Request request = new;
         json jsonBody = jsondata:toJson(payload);
         request.setPayload(jsonBody, "application/json");
         return self.clientEp->post(resourcePath, request, headers);
+    }
+
+    # Retrieves a model response with the given ID.
+    #
+    # + response_id - The ID of the response to retrieve.
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    resource isolated function get responses/[string response_id](map<string|string[]> headers = {}, *GetResponseQueries queries) returns Response|error {
+        string resourcePath = string `/responses/${getEncodedUri(response_id)}`;
+        map<Encoding> queryParamEncoding = {"include": {style: FORM, explode: true}};
+        resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
+        return self.clientEp->get(resourcePath, headers);
+    }
+
+    # Deletes a model response with the given ID.
+    #
+    # + response_id - The ID of the response to delete.
+    # + headers - Headers to be sent with the request 
+    # + return - OK 
+    resource isolated function delete responses/[string response_id](map<string|string[]> headers = {}) returns error? {
+        string resourcePath = string `/responses/${getEncodedUri(response_id)}`;
+        return self.clientEp->delete(resourcePath, headers = headers);
+    }
+
+    # Cancels a model response with the given ID. Only responses created with
+    # the `background` parameter set to `true` can be cancelled. 
+    # [Learn more](/docs/guides/background).
+    #
+    # + response_id - The ID of the response to cancel.
+    # + headers - Headers to be sent with the request 
+    # + return - OK 
+    resource isolated function post responses/[string response_id]/cancel(map<string|string[]> headers = {}) returns Response|error {
+        string resourcePath = string `/responses/${getEncodedUri(response_id)}/cancel`;
+        http:Request request = new;
+        return self.clientEp->post(resourcePath, request, headers);
+    }
+
+    # Returns a list of input items for a given response.
+    #
+    # + response_id - The ID of the response to retrieve input items for.
+    # + headers - Headers to be sent with the request 
+    # + queries - Queries to be sent with the request 
+    # + return - OK 
+    resource isolated function get responses/[string response_id]/input_items(map<string|string[]> headers = {}, *ListInputItemsQueries queries) returns ResponseItemList|error {
+        string resourcePath = string `/responses/${getEncodedUri(response_id)}/input_items`;
+        map<Encoding> queryParamEncoding = {"include": {style: FORM, explode: true}};
+        resourcePath = resourcePath + check getPathForQueryParam(queries, queryParamEncoding);
+        return self.clientEp->get(resourcePath, headers);
     }
 }

@@ -61,6 +61,34 @@ These changes are done in order to improve the overall usability, and as workaro
    - **Updated**: Removed `detail` from the `required` array
    - **Reason**: The `detail` field defaults to `auto` and should not be mandatory. Making it optional improves usability by allowing users to omit it when the default behavior is acceptable.
 
+9. **Converted JSON Schema 2020-12 recursive references to standard `$ref`**:
+
+   - **Changed Schema**: `CompoundFilter`
+   - **Original**: `$recursiveAnchor: true` on the schema and `$recursiveRef: "#"` for the self-reference
+   - **Updated**: Removed `$recursiveAnchor` and replaced `$recursiveRef: "#"` with `$ref: '#/components/schemas/CompoundFilter'`
+   - **Reason**: The `$recursiveAnchor`/`$recursiveRef` keywords are JSON Schema 2020-12 constructs that are not supported in OpenAPI 3.0.0. A standard `$ref` to the schema itself expresses the same recursion.
+
+10. **Removed `propertyNames`**:
+
+    - **Changed Schema**: `VectorStoreFileAttributes`
+    - **Original**: `propertyNames: { type: string, maxLength: 64 }`
+    - **Updated**: Removed the `propertyNames` keyword
+    - **Reason**: The `propertyNames` keyword is not supported in OpenAPI 3.0.0. It only constrained the map's key names (max length), which has no OpenAPI 3.0.0 equivalent; the map's string keys are otherwise unaffected.
+
+11. **Made `status` field optional in `ComputerToolCallOutputResource`**:
+
+    - **Changed Schema**: `ComputerToolCallOutputResource`
+    - **Original**: `status` listed in the `required` array
+    - **Updated**: Removed `status` from the `required` array
+    - **Reason**: The `status` field is only populated when input items are returned via the API, so it should not be mandatory on the request/resource model. Making it optional accurately reflects that it may be absent.
+
+12. **Added `failed` to the `status` enum in `ComputerToolCallOutput`**:
+
+    - **Changed Schema**: `ComputerToolCallOutput`
+    - **Original**: `status` enum was `in_progress`, `completed`, `incomplete`
+    - **Updated**: Added `failed` so the enum is `in_progress`, `completed`, `incomplete`, `failed`
+    - **Reason**: `ComputerToolCallOutputResource` uses `allOf` to extend `ComputerToolCallOutput` and overrides `status` with `ComputerCallOutputStatus` (`completed`, `incomplete`, `failed`). Because `failed` was absent from the base enum, the override was not a subtype of the base field, which the Ballerina OpenAPI tool rejects (an overriding field must be a subtype of the included field). Widening the base enum to include `failed` makes the override a valid subtype and resolves the compilation error, while accurately reflecting that a computer call output can be in a `failed` state.
+
 ## OpenAPI cli command
 
 The following command was used to generate the Ballerina client from the OpenAPI specification. The command should be executed from the repository root directory.
