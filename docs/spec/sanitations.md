@@ -89,6 +89,18 @@ These changes are done in order to improve the overall usability, and as workaro
     - **Updated**: Added `failed` so the enum is `in_progress`, `completed`, `incomplete`, `failed`
     - **Reason**: `ComputerToolCallOutputResource` uses `allOf` to extend `ComputerToolCallOutput` and overrides `status` with `ComputerCallOutputStatus` (`completed`, `incomplete`, `failed`). Because `failed` was absent from the base enum, the override was not a subtype of the base field, which the Ballerina OpenAPI tool rejects (an overriding field must be a subtype of the included field). Widening the base enum to include `failed` makes the override a valid subtype and resolves the compilation error, while accurately reflecting that a computer call output can be in a `failed` state.
 
+13. **Renamed schemas to Ballerina-friendly type names**:
+
+    - **Changed Schemas**: Only the schemas whose generated Ballerina type name was not a valid UpperCamelCase identifier (anonymous inline records the tool already emitted without a name were left unchanged).
+    - **Original**:
+       - Schema keys ending in `-2` (`Conversation-2`, `ConversationParam-2`), which the tool emitted as escaped type names (`Conversation\-2`, `ConversationParam\-2`).
+       - Inline object schemas the tool named with underscores (`FileSearchToolCall_results`, `ImageGenTool_input_image_mask`, `ResponseUsage_input_tokens_details`, `ResponseUsage_output_tokens_details`, `Response_incomplete_details`, `WebSearchTool_filters`) or from a `title` containing spaces (`Web search source`).
+    - **Updated**:
+       - Renamed the `-2` keys to UpperCamelCase (`Conversation-2` → `Conversation2`, `ConversationParam-2` → `ConversationParam2`) and updated every `$ref`.
+       - Extracted the underscore-named inline objects into components with UpperCamelCase names (`FileSearchToolCall_results` → `FileSearchToolCallResults`, `Response_incomplete_details` → `ResponseIncompleteDetails`, ...) and updated every `$ref`.
+       - Replaced the space-bearing `title` on the relevant inline schema with UpperCamelCase (`Web search source` → `WebSearchSource`).
+    - **Reason**: Ballerina type names must be valid UpperCamelCase identifiers. Hyphens, underscores, and spaces force backslash-escaped or non-idiomatic type names, which hurts the connector's usability.
+
 ## OpenAPI cli command
 
 The following command was used to generate the Ballerina client from the OpenAPI specification. The command should be executed from the repository root directory.

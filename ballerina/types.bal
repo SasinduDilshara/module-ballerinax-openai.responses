@@ -157,7 +157,7 @@ public type WebSearchTool record {
     # The type of the web search tool. One of `web_search` or `web_search_2025_08_26`.
     "web_search"|"web_search_2025_08_26" 'type = "web_search";
     # Filters for the search.
-    WebSearchTool_filters? filters?;
+    WebSearchToolFilters? filters?;
     # The approximate location of the user.
     WebSearchApproximateLocation? user_location?;
     # High level guidance for the amount of context window space to use for the search. One of `low`, `medium`, or `high`. `medium` is the default.
@@ -365,15 +365,6 @@ public type ApplyPatchDeleteFileOperationParam record {
 
 public type FunctionCallOutputStatusEnum "in_progress"|"completed"|"incomplete";
 
-# Optional mask for inpainting. Contains `image_url`
-# (string, optional) and `file_id` (string, optional).
-public type ImageGenTool_input_image_mask record {|
-    # Base64-encoded mask image.
-    string image_url?;
-    # File ID for the mask image.
-    string file_id?;
-|};
-
 # Indicates that the shell commands finished and returned an exit code.
 public type FunctionShellCallOutputExitOutcome record {
     # The outcome type. Always `exit`.
@@ -385,6 +376,15 @@ public type FunctionShellCallOutputExitOutcome record {
 public type ContainerMemoryLimit "1g"|"4g"|"16g"|"64g";
 
 public type ApplyPatchCallStatus "in_progress"|"completed";
+
+# Optional mask for inpainting. Contains `image_url`
+# (string, optional) and `file_id` (string, optional).
+public type ImageGenToolInputImageMask record {|
+    # Base64-encoded mask image.
+    string image_url?;
+    # File ID for the mask image.
+    string file_id?;
+|};
 
 # Execute a shell command on the server.
 public type LocalShellExecAction record {
@@ -400,12 +400,6 @@ public type LocalShellExecAction record {
     record {|string...;|} env;
     # Optional user to run the command as.
     string? user?;
-};
-
-# A detailed breakdown of the output tokens.
-public type ResponseUsage_output_tokens_details record {
-    # The number of reasoning tokens.
-    int reasoning_tokens;
 };
 
 # An image input to the model. Learn about [image inputs](/docs/guides/vision)
@@ -474,7 +468,7 @@ public type FileSearchToolCall record {
     # The queries used to search for files.
     string[] queries;
     # The results of the file search tool call.
-    FileSearchToolCall_results[]? results?;
+    FileSearchToolCallResults[]? results?;
 };
 
 public type GrammarSyntax1 "lark"|"regex";
@@ -538,15 +532,6 @@ public type ContainerNetworkPolicyDomainSecretParam record {
 
 public type ToolSearchExecutionType "server"|"client";
 
-# Filters for the search.
-public type WebSearchTool_filters record {
-    # Allowed domains for the search. If not provided, all domains are allowed.
-    # Subdomains of the provided domains are allowed as well.
-    # 
-    # Example: `["pubmed.ncbi.nlm.nih.gov"]`
-    string[]? allowed_domains = [];
-};
-
 public type FunctionToolParam record {
     @constraint:String {maxLength: 128, minLength: 1, pattern: re `^[a-zA-Z0-9_-]+$`}
     string name;
@@ -603,24 +588,14 @@ public type WebSearchToolCall record {
 # - `reasoning.encrypted_content`: Includes an encrypted version of reasoning tokens in reasoning item outputs. This enables reasoning items to be used in multi-turn conversations when using the Responses API statelessly (like when the `store` parameter is set to `false`, or when an organization is enrolled in the zero data retention program).
 public type IncludeEnum "file_search_call.results"|"web_search_call.results"|"web_search_call.action.sources"|"message.input_image.image_url"|"computer_call_output.output.image_url"|"code_interpreter_call.outputs"|"reasoning.encrypted_content"|"message.output_text.logprobs";
 
-public type FileSearchToolCall_results record {
-    # The unique ID of the file.
-    string file_id?;
-    # The text that was retrieved from the file.
-    string text?;
-    # The name of the file.
-    string filename?;
-    # Set of 16 key-value pairs that can be attached to an object. This can be
-    # useful for storing additional information about the object in a structured
-    # format, and querying for objects via API or the dashboard. Keys are strings
-    # with a maximum length of 64 characters. Values are strings with a maximum
-    # length of 512 characters, booleans, or numbers.
-    VectorStoreFileAttributes? attributes?;
-    # The relevance score of the file - a value between 0 and 1.
-    float score?;
-};
-
 public type ComputerCallOutputStatus "completed"|"incomplete"|"failed";
+
+# A detailed breakdown of the input tokens.
+public type ResponseUsageInputTokensDetails record {
+    # The number of tokens that were retrieved from the cache. 
+    # [More on prompt caching](/docs/guides/prompt-caching).
+    int cached_tokens;
+};
 
 public type FileInputDetail "low"|"high";
 
@@ -907,7 +882,7 @@ public type ComputerCallOutputItemParam record {
 
 # The conversation that this response belongs to. Items from this conversation are prepended to `input_items` for this response request.
 # Input items and output items from this response are automatically added to this conversation after this response completes.
-public type ConversationParam string|ConversationParam\-2;
+public type ConversationParam string|ConversationParam2;
 
 # Action type "find_in_page": Searches for a pattern within a loaded page.
 public type WebSearchActionFind record {
@@ -990,7 +965,7 @@ public type WebSearchActionSearch record {
     # The search queries.
     string[] queries?;
     # The sources used in the search.
-    Web\ search\ source[] sources?;
+    WebSearchSource[] sources?;
 };
 
 # Instruction for creating a new file via the apply_patch tool.
@@ -1011,11 +986,11 @@ public type ResponseUsage record {
     # The number of input tokens.
     int input_tokens;
     # A detailed breakdown of the input tokens.
-    ResponseUsage_input_tokens_details input_tokens_details;
+    ResponseUsageInputTokensDetails input_tokens_details;
     # The number of output tokens.
     int output_tokens;
     # A detailed breakdown of the output tokens.
-    ResponseUsage_output_tokens_details output_tokens_details;
+    ResponseUsageOutputTokensDetails output_tokens_details;
     # The total number of tokens used.
     int total_tokens;
 };
@@ -1112,6 +1087,12 @@ public type ToolSearchOutputItemParam record {
     FunctionCallItemStatus status?;
 };
 
+# The conversation that this response belonged to. Input items and output items from this response were automatically added to this conversation.
+public type Conversation2 record {
+    # The unique ID of the conversation that this response was associated with.
+    string id;
+};
+
 # Unconstrained free-form text.
 public type CustomTextFormatParam record {
     # Unconstrained text format. Always `text`.
@@ -1173,6 +1154,15 @@ public type InputTextContent record {
     string text;
 };
 
+# Filters for the search.
+public type WebSearchToolFilters record {
+    # Allowed domains for the search. If not provided, all domains are allowed.
+    # Subdomains of the provided domains are allowed as well.
+    # 
+    # Example: `["pubmed.ncbi.nlm.nih.gov"]`
+    string[]? allowed_domains = [];
+};
+
 # The image output from the code interpreter.
 public type CodeInterpreterOutputImage record {
     # The type of the output. Always `image`.
@@ -1224,10 +1214,6 @@ public type ComputerCallSafetyCheckParam record {
     string? code?;
     # Details about the pending safety check.
     string? message?;
-};
-
-public type Conversation\-2 record {
-    string id;
 };
 
 # Optional map of values to substitute in for variables in your
@@ -1424,13 +1410,6 @@ public type LogProb record {
 # the model can call.
 public type ToolChoiceParam ToolChoiceOptions|ToolChoiceAllowed|ToolChoiceTypes|ToolChoiceFunction|ToolChoiceMCP|ToolChoiceCustom|SpecificApplyPatchParam|SpecificFunctionShellParam;
 
-# A detailed breakdown of the input tokens.
-public type ResponseUsage_input_tokens_details record {
-    # The number of tokens that were retrieved from the cache. 
-    # [More on prompt caching](/docs/guides/prompt-caching).
-    int cached_tokens;
-};
-
 # Content item used to generate a response.
 public type Item InputMessage|OutputMessage|FileSearchToolCall|ComputerToolCall|ComputerCallOutputItemParam|WebSearchToolCall|FunctionToolCall|FunctionCallOutputItemParam|ToolSearchCallItemParam|ToolSearchOutputItemParam|ReasoningItem|CompactionSummaryItemParam|ImageGenToolCall|CodeInterpreterToolCall|LocalShellToolCall|LocalShellToolCallOutput|FunctionShellCallItemParam|FunctionShellCallOutputItemParam|ApplyPatchToolCallItemParam|ApplyPatchToolCallOutputItemParam|MCPListTools|MCPApprovalRequest|MCPApprovalResponse|MCPToolCall|CustomToolCallOutput|CustomToolCall;
 
@@ -1542,6 +1521,12 @@ public type ComputerUsePreviewTool record {
 public type ResponseFormatJsonSchemaSchema record {
 };
 
+# The conversation that this response belongs to.
+public type ConversationParam2 record {
+    # The unique ID of the conversation.
+    string id;
+};
+
 public type ApproximateLocation record {
     # The type of location approximation. Always `approximate`.
     "approximate" 'type = "approximate";
@@ -1592,12 +1577,6 @@ public type ContainerAutoParam record {
     (SkillReferenceParam|InlineSkillParam)[] skills?;
 };
 
-# Details about why the response is incomplete.
-public type Response_incomplete_details record {
-    # The reason why the response is incomplete.
-    "max_output_tokens"|"content_filter" reason?;
-};
-
 # The content of a shell tool call output that was emitted.
 public type FunctionShellCallOutputContent record {
     # The standard output that was captured.
@@ -1642,12 +1621,13 @@ public type CreateModelResponseProperties record {
     int? top_logprobs?;
 };
 
-public type Web\ search\ source record {
-    "url" 'type;
-    string url;
-};
-
 public type FileDetailEnum "low"|"high";
+
+# A detailed breakdown of the output tokens.
+public type ResponseUsageOutputTokensDetails record {
+    # The number of reasoning tokens.
+    int reasoning_tokens;
+};
 
 public type ComputerAction ClickParam|DoubleClickAction|DragParam|KeyPressAction|MoveParam|ScreenshotParam|ScrollParam|TypeParam|WaitParam;
 
@@ -1872,6 +1852,23 @@ public type ApplyPatchToolParam record {
     "apply_patch" 'type = "apply_patch";
 };
 
+public type FileSearchToolCallResults record {
+    # The unique ID of the file.
+    string file_id?;
+    # The text that was retrieved from the file.
+    string text?;
+    # The name of the file.
+    string filename?;
+    # Set of 16 key-value pairs that can be attached to an object. This can be
+    # useful for storing additional information about the object in a structured
+    # format, and querying for objects via API or the dashboard. Keys are strings
+    # with a maximum length of 64 characters. Values are strings with a maximum
+    # length of 512 characters, booleans, or numbers.
+    VectorStoreFileAttributes? attributes?;
+    # The relevance score of the file - a value between 0 and 1.
+    float score?;
+};
+
 # A wait action.
 public type WaitParam record {
     # Specifies the event type. For a wait action, this property is always set to `wait`.
@@ -1962,6 +1959,12 @@ public type Prompt record {
 public type ContainerNetworkPolicyDisabledParam record {
     # Disable outbound network access. Always `disabled`.
     "disabled" 'type = "disabled";
+};
+
+# Details about why the response is incomplete.
+public type ResponseIncompleteDetails record {
+    # The reason why the response is incomplete.
+    "max_output_tokens"|"content_filter" reason?;
 };
 
 # A message input to the model with a role indicating instruction following
@@ -2266,6 +2269,14 @@ public type RankingOptions record {
 
 public type FunctionAndCustomToolCallOutput InputTextContent|InputImageContent|InputFileContent;
 
+# A source used in the search.
+public type WebSearchSource record {
+    # The type of source. Always `url`.
+    "url" 'type;
+    # The URL of the source.
+    string url;
+};
+
 # A path to a file.
 public type FilePath record {
     # The type of the file path. Always `file_path`.
@@ -2354,7 +2365,7 @@ public type ImageGenTool record {
     InputFidelity input_fidelity?;
     # Optional mask for inpainting. Contains `image_url`
     # (string, optional) and `file_id` (string, optional).
-    ImageGenTool_input_image_mask input_image_mask?;
+    ImageGenToolInputImageMask input_image_mask?;
     # Number of partial images to generate in streaming mode, from 0 (default value) to 3.
     @constraint:Int {minValue: 0, maxValue: 3}
     int partial_images = 0;
@@ -2368,10 +2379,6 @@ public type LocalSkillParam record {
     string description;
     # The path to the directory containing the skill.
     string path;
-};
-
-public type ConversationParam\-2 record {
-    string id;
 };
 
 public type Response record {
@@ -2392,7 +2399,7 @@ public type Response record {
     # An error object returned when the model fails to generate a Response.
     ResponseError? 'error;
     # Details about why the response is incomplete.
-    Response_incomplete_details? incomplete_details;
+    ResponseIncompleteDetails? incomplete_details;
     # An array of content items generated by the model.
     # 
     # - The length and order of items in the `output` array is dependent
@@ -2417,7 +2424,7 @@ public type Response record {
     ResponseUsage usage?;
     # Whether to allow the model to run tool calls in parallel.
     boolean parallel_tool_calls = true;
-    Conversation\-2 conversation?;
+    Conversation2 conversation?;
     # An upper bound for the number of tokens that can be generated for a response, including visible output tokens and [reasoning tokens](/docs/guides/reasoning).
     int? max_output_tokens?;
     # Set of 16 key-value pairs that can be attached to an object. This can be
