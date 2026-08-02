@@ -8,7 +8,9 @@
 
 [OpenAI](https://openai.com/), an AI research organization focused on creating friendly AI for humanity, offers the [OpenAI API](https://platform.openai.com/docs/api-reference/introduction) to access its powerful AI models for tasks like natural language processing and image generation.
 
-The `ballerinax/openai.responses` package offers functionality to connect and interact with the [Responses API endpoints of the OpenAI REST API](https://platform.openai.com/docs/api-reference/responses). The Responses API is OpenAI's most advanced interface for generating model responses — an evolution of Chat Completions that brings added simplicity and powerful agentic primitives such as built-in tools for web search and file search.
+The `ballerinax/openai.responses` package offers functionality to connect and interact with the [Responses API of the OpenAI REST API](https://platform.openai.com/docs/api-reference/responses). The Responses API is OpenAI's most advanced interface for generating model responses — an evolution of Chat Completions that brings added simplicity and powerful agentic primitives such as built-in tools for web search and file search.
+
+The package currently exposes the [create model response](https://platform.openai.com/docs/api-reference/responses/create) operation (`POST /responses`), which covers text and image inputs, text and JSON outputs, function calling, and the built-in tools.
 
 ## Setup guide
 
@@ -58,7 +60,7 @@ final responses:Client openAIResponses = check new ({
 
 ### Step 3: Invoke the connector operation
 
-Now, you can utilize available connector operations.
+Now, you can utilize the available connector operation.
 
 #### Create a model response
 

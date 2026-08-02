@@ -101,6 +101,13 @@ These changes are done in order to improve the overall usability, and as workaro
        - Replaced the space-bearing `title` on the relevant inline schema with UpperCamelCase (`Web search source` → `WebSearchSource`).
     - **Reason**: Ballerina type names must be valid UpperCamelCase identifiers. Hyphens, underscores, and spaces force backslash-escaped or non-idiomatic type names, which hurts the connector's usability.
 
+14. **Made `logprobs` field optional in `OutputTextContent`**:
+
+    - **Changed Schema**: `OutputTextContent`
+    - **Original**: `logprobs` listed in the `required` array
+    - **Updated**: Removed `logprobs` from the `required` array
+    - **Reason**: `logprobs` is only populated when the caller opts in via `include: ["message.output_text.logprobs"]`. Five of the six documented example responses for `POST /responses` (`Text input`, `Image input`, `Web search`, `File search`, `Reasoning`) omit the key entirely, so the upstream `required` entry contradicts the upstream examples. A required, non-nilable `LogProb[]` cannot be satisfied by an absent key even with `laxDataBinding` enabled, since there is no valid value to bind, so every ordinary response would fail data binding. Making it optional accurately reflects that the field is opt-in.
+
 ## OpenAPI cli command
 
 The following command was used to generate the Ballerina client from the OpenAPI specification. The command should be executed from the repository root directory.
