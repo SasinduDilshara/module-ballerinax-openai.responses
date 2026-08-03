@@ -1528,7 +1528,6 @@ components:
             description: 'Whether to allow the model to run tool calls in parallel.
 
               '
-            default: true
             nullable: true
           store:
             type: boolean
@@ -1537,7 +1536,6 @@ components:
               API.
 
               '
-            default: true
             nullable: true
           instructions:
             type: string
@@ -1563,7 +1561,6 @@ components:
 
               '
             type: boolean
-            default: false
             nullable: true
           stream_options:
             $ref: '#/components/schemas/ResponseStreamOptions'
@@ -4222,7 +4219,6 @@ components:
           type: number
           minimum: 0
           maximum: 2
-          default: 1
           example: 1
           description: 'What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
 
@@ -4234,7 +4230,6 @@ components:
           type: number
           minimum: 0
           maximum: 1
-          default: 1
           example: 1
           description: 'An alternative to sampling with temperature, called nucleus sampling,
 
@@ -4800,6 +4795,35 @@ components:
 
               '
             default: true
+          temperature:
+            type: number
+            minimum: 0
+            maximum: 2
+            default: 1
+            description: 'What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
+
+              We generally recommend altering this or `top_p` but not both.
+
+              '
+            nullable: true
+          top_p:
+            type: number
+            minimum: 0
+            maximum: 1
+            default: 1
+            description: 'An alternative to sampling with temperature, called nucleus sampling,
+
+              where the model considers the results of the tokens with top_p probability
+
+              mass. So 0.1 means only the tokens comprising the top 10% probability mass
+
+              are considered.
+
+
+              We generally recommend altering this or `temperature` but not both.
+
+              '
+            nullable: true
           conversation:
             allOf:
             - $ref: '#/components/schemas/Conversation2'
@@ -6363,7 +6387,6 @@ components:
             [Learn more](/docs/guides/background).
 
             '
-          default: false
           nullable: true
         max_tool_calls:
           description: 'The maximum number of total calls to built-in tools that can be processed in a response. This maximum number applies across all built-in tool calls, not per individual tool. Any further attempts to call a tool by the model will be ignored.
@@ -6385,7 +6408,6 @@ components:
           enum:
           - auto
           - disabled
-          default: disabled
           nullable: true
     ResponseQueuedEvent:
       type: object
@@ -7336,7 +7358,6 @@ components:
           $ref: '#/components/schemas/ResponseFormatJsonSchemaSchema'
         strict:
           type: boolean
-          default: false
           description: 'Whether to enable strict schema adherence when generating the output.
 
             If set to true, the model will always follow the exact schema defined

@@ -1,6 +1,6 @@
 _Authors_: @ballerina-platform \
 _Created_: 2026/03/03 \
-_Updated_: 2026/03/03 \
+_Updated_: 2026/08/03 \
 _Edition_: Swan Lake
 
 # Sanitation for OpenAPI specification
@@ -107,6 +107,15 @@ These changes are done in order to improve the overall usability, and as workaro
     - **Original**: `logprobs` listed in the `required` array
     - **Updated**: Removed `logprobs` from the `required` array
     - **Reason**: `logprobs` is only populated when the caller opts in via `include: ["message.output_text.logprobs"]`. Five of the six documented example responses for `POST /responses` (`Text input`, `Image input`, `Web search`, `File search`, `Reasoning`) omit the key entirely, so the upstream `required` entry contradicts the upstream examples. A required, non-nilable `LogProb[]` cannot be satisfied by an absent key even with `laxDataBinding` enabled, since there is no valid value to bind, so every ordinary response would fail data binding. Making it optional accurately reflects that the field is opt-in.
+
+15. **Removed `default` from request-body parameters so they generate as optional fields**:
+
+    - **Changed Schemas**: `ModelResponseProperties` (`temperature`, `top_p`), `ResponseProperties` (`background`, `truncation`), `CreateResponse` (`parallel_tool_calls`, `store`, `stream`), `TextResponseFormatJsonSchema` (`strict`)
+    - **Original**: `default: 1` (`temperature`, `top_p`), `default: true` (`parallel_tool_calls`, `store`), `default: false` (`background`, `stream`, `strict`), `default: disabled` (`truncation`)
+    - **Updated**: Removed the `default` keyword. The `minimum`/`maximum` constraints, `nullable` markers and enum members are unchanged. Because `Response` builds on `ModelResponseProperties` and lists `temperature`/`top_p` in its `required` array, the two properties were re-declared **inside `Response.properties`** with `default: 1` retained, so the read schema keeps its previous shape (see the note below).
+    - **Reason**: In Ballerina a field with a default value (`decimal? temperature = 1;`) is **not** an optional field — it is always present in the record value. `client.bal` serialises the request with `jsondata:toJson(payload)`, which emits every present field, so `->/responses.post({model: "gpt-5", input: "hi"})` went on the wire as `{"model":"gpt-5","input":"hi","temperature":1.0,"top_p":1.0,"parallel_tool_calls":true,"store":true,"stream":false,"background":false,"truncation":"disabled"}`. Reasoning models reject the sampling parameters: GPT-5 returns `400 Unsupported value: 'temperature' does not support X with this model. Only the default (1) value is supported.`, and the stricter families (o-series, `gpt-5-pro`) return `400 Unsupported parameter: 'temperature' is not supported with this model.`, which fails **even for the default value `1`**. With the defaults present those models could not be called at all. Removing `default` makes the tool generate plain optional fields (`decimal? temperature?;`), serialised only when the caller sets them. The official `POST /responses` reference lists all of these as optional with no requirement to send them, and the values that were being sent were the API-side defaults anyway, so behaviour for the GPT-4 families is unchanged.
+    - **Note on the `Response` re-declaration**: dropping the `default` from a `required` field would have made it a required-without-default Ballerina field, and Ballerina data binding rejects an absent key for such a field even when the type is nilable (`missing required field 'temperature' of type 'decimal?'`). Keeping `default: 1` on `Response.temperature`/`Response.top_p` preserves the tolerant read-side binding while the request side becomes optional.
+    - **Note on what was left in place**: `Response.parallel_tool_calls` (`default: true`, response-only), the `ImageGenTool` tool-configuration defaults (`quality`, `size`, `output_format`, `output_compression`, `moderation`, `background`, `partial_images`), `WebSearchTool.search_context_size`, and the `type` discriminator defaults across the item/tool schemas were deliberately kept — none of them is a top-level request parameter that a reasoning model rejects.
 
 ## OpenAPI cli command
 

@@ -180,7 +180,7 @@ public type ResponseProperties record {
     Reasoning reasoning?;
     # Whether to run the model response in the background.
     # [Learn more](/docs/guides/background).
-    boolean? background = false;
+    boolean? background?;
     # The maximum number of total calls to built-in tools that can be processed in a response. This maximum number applies across all built-in tool calls, not per individual tool. Any further attempts to call a tool by the model will be ignored.
     int? max_tool_calls?;
     # Configuration options for a text response from the model. Can be plain
@@ -218,7 +218,7 @@ public type ResponseProperties record {
     #   response to fit the context window by dropping items from the beginning of the conversation.
     # - `disabled` (default): If the input size will exceed the context window
     #   size for a model, the request will fail with a 400 error.
-    "auto"|"disabled"? truncation = "disabled";
+    "auto"|"disabled"? truncation?;
 };
 
 # The top log probability of a token.
@@ -610,7 +610,7 @@ public type TextResponseFormatJsonSchema record {
     # in the `schema` field. Only a subset of JSON Schema is supported when
     # `strict` is `true`. To learn more, read the [Structured Outputs
     # guide](/docs/guides/structured-outputs).
-    boolean? strict = false;
+    boolean? strict?;
 };
 
 # An image input to the model. Learn about [image inputs](/docs/guides/vision).
@@ -1270,14 +1270,14 @@ public type ModelResponseProperties record {
     int? top_logprobs?;
     # What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
     # We generally recommend altering this or `top_p` but not both.
-    decimal? temperature = 1;
+    decimal? temperature?;
     # An alternative to sampling with temperature, called nucleus sampling,
     # where the model considers the results of the tokens with top_p probability
     # mass. So 0.1 means only the tokens comprising the top 10% probability mass
     # are considered.
     # 
     # We generally recommend altering this or `temperature` but not both.
-    decimal? top_p = 1;
+    decimal? top_p?;
     # This field is being replaced by `safety_identifier` and `prompt_cache_key`. Use `prompt_cache_key` instead to maintain caching optimizations.
     # A stable identifier for your end-users.
     # Used to boost cache hit rates by better bucketing similar requests and  to help OpenAI detect and prevent abuse. [Learn more](/docs/guides/safety-best-practices#safety-identifiers).
@@ -1951,10 +1951,10 @@ public type CreateResponse record {
     # - `reasoning.encrypted_content`: Includes an encrypted version of reasoning tokens in reasoning item outputs. This enables reasoning items to be used in multi-turn conversations when using the Responses API statelessly (like when the `store` parameter is set to `false`, or when an organization is enrolled in the zero data retention program).
     IncludeEnum[]? include?;
     # Whether to allow the model to run tool calls in parallel.
-    boolean? parallel_tool_calls = true;
+    boolean? parallel_tool_calls?;
     # Whether to store the generated model response for later retrieval via
     # API.
-    boolean? store = true;
+    boolean? store?;
     # A system (or developer) message inserted into the model's context.
     # 
     # When using along with `previous_response_id`, the instructions from a previous
@@ -1965,7 +1965,7 @@ public type CreateResponse record {
     # as it is generated using [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format).
     # See the [Streaming section below](/docs/api-reference/responses-streaming)
     # for more information.
-    boolean? 'stream = false;
+    boolean? 'stream?;
     # Options for streaming responses. Only set this when you set `stream: true`.
     ResponseStreamOptions? stream_options?;
     ConversationParam conversation?;
